@@ -1,17 +1,26 @@
 import argparse
+import json
+
 from pathlib import Path
 
 import yaml
 
 from crawler.crawler import Crawler
 
+
+def prepare_name(title):
+
+    return args.save_path / title
+
+
+def get_arrgs() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description='Crawler')
+    parser.add_argument('--path', type=Path, help='Path to yaml settings file', default='./settings.yaml')
+    parser.add_argument('--save_path', type=Path, help='Path to yaml settings file', default='./result')
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
-
-    def get_arrgs() -> argparse.Namespace:
-        parser = argparse.ArgumentParser(description='Crawler')
-        parser.add_argument('--path', type=Path, help='Path to yaml settings file', default='./settings.yaml')
-        return parser.parse_args()
-
 
     args = get_arrgs()
     assert args.path.is_file(), "File not found"
@@ -21,8 +30,12 @@ if __name__ == '__main__':
             search_string = settings["settings"]["search_string"]
             p_count = int(settings["settings"]["pages_count"])
         except:
-            raise "Not able to load settings"
+            print("Not able to load settings")
+            raise
     assert p_count > 0 and len(search_string) != 0, "Incorrect settings"
 
-    crawler = Crawler(search_string=search_string)
-    crawler.process()
+    jsons = Crawler(search_string=search_string).process()
+
+    for title, content in jsons:
+        with open(prepare_name(title), "w+") as save_file:
+            json.dump(content, save_file)
