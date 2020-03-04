@@ -34,7 +34,6 @@ if __name__ == '__main__':
             print("Not able to load settings")
             raise
     assert p_count > 0 and len(search_string) != 0, "Incorrect settings"
-    assert p_count <= 10, "10 search results is limit for Google Custom engine"
 
     jsons = Crawler(search_string=search_string, p_count=p_count, api_key=args.api_key, cse_id=args.cse_id).process()
 

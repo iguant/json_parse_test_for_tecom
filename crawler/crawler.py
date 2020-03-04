@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 
 
 class Crawler:
-    def __init__(self, search_string: str, p_count: str, api_key: str, cse_id: str):
+    def __init__(self, search_string: str, p_count: int, api_key: str, cse_id: str):
         self.search_string = search_string
         self.p_count = p_count
         self.api_key = api_key
@@ -37,7 +37,7 @@ class Crawler:
 
     def _google_search(self, **kwargs):
         service = build("customsearch", "v1", developerKey=self.api_key)
-        res = service.cse().list(q=self.search_string, num=self.p_count, cx=self.cse_id, **kwargs).execute()
+        res = service.cse().list(q=self.search_string, cx=self.cse_id, **kwargs).execute()
         return res
 
     def _parce_json(self, json_data):
@@ -70,26 +70,40 @@ class Crawler:
                     found += 1
                     try:
                         pre_json = json.loads(substring[:char + 1])
-                        print("Loaded JSON")
                         parsed_json = self._parce_json(json_data=pre_json)
                         json_object = f"object_{found}"
-                        result_json[json_object] = parsed_json
+                        if len(parsed_json) != 0:
+                            result_json[json_object] = parsed_json
                     except:
-                        print("Cannot load JSON")
+                        pass
                     if len(substring[char:]) > 1:
                         nested_recurse_text(substring[char:], found)
                     break
+
         nested_recurse_text(html.text, found)
         return result_json
 
-    def process(self) -> list:
-        search_results = self._google_search()
+    def _parse_site(self, search_results):
         for item in search_results["items"]:
             url = item["link"]
-            print(item["link"])
+            print(f"Parsed site {item['link']}")
             session = self._prepare_http_adapter(url)
             html = self._get_html(session=session, url=url)
             content = self._parse_html(html=html)
             if len(content) != 0:
                 self.result.append((item["title"], content))
+
+    def process(self) -> list:
+        # avoid Google restriction for 10 results one time only
+        index = 1
+        dozen = self.p_count // 10
+        remainder = self.p_count % 10
+        if dozen > 0:
+            for i in range(1, dozen):
+                search_results = self._google_search(num=10, start=index)
+                self._parse_site(search_results)
+                index += 10
+        if remainder > 0:
+            search_results = self._google_search(num=remainder, start=index)
+            self._parse_site(search_results)
         return self.result
