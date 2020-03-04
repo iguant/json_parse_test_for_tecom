@@ -16,8 +16,8 @@ def get_arrgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Crawler')
     parser.add_argument('--path', type=Path, help='Path to yaml settings file', default='./settings.yaml')
     parser.add_argument('--save_path', type=Path, help='Path to yaml settings file', default='./result')
-    parser.add_argument('--api_key', type=str, help='Google api token', default="AIzaSyA3xVLjVs1vad8HBv40t8QOvEGLdWKWpK4")
-    parser.add_argument('--cse_id', type=str, help='Google Custom engine id', default="012485294846830293341:qaewpfzaaoq")
+    parser.add_argument('--api_key', type=str, help='Google api token')
+    parser.add_argument('--cse_id', type=str, help='Google Custom engine id')
     return parser.parse_args()
 
 
