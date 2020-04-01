@@ -1,11 +1,12 @@
-Для работы необходимо получить Google key_api и CSE_id
+Для работы необходимо получить Google **key_api** и **CSE_id**
  https://developers.google.com/custom-search/v1/overview
  
 и запусть с параметрами --api_key и --cse_id
 
-*Задачка по обработке данных json, yaml, работе с файлами и разбору сайтов*
 
- 
+
+### Задачка по обработке данных json, yaml, работе с файлами и разбору сайтов
+
 
 Среда разработки: Python3
 
